@@ -196,7 +196,7 @@
                                     <field name="purchase_value"/>
                                     <field name="currency_id" invisible="1"/>
                                     <field name="vendor_id"/>
-                                    <field name="purchase_order_id"/>
+                                    <field name="purchase_order_ref"/>
                                 </group>
                                 <group string="Warranty">
                                     <field name="warranty_start_date"/>

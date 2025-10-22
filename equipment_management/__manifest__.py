@@ -14,15 +14,15 @@
         * Maintenance scheduling
         * Mobile-friendly interface
     """,
-    'author': 'Your Company',
-    'website': 'https://www.yourcompany.com',
+    'author': 'Virtual Mechatronics labs',
+    'website': 'https://vml.dkut.ac.ke/',
     'depends': [
         'base',
         'mail',
         'web',
         'barcodes',
         'portal',
-        'purchase',
+        # 'purchase',
     ],
     'data': [
         # Security

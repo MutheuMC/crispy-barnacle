@@ -86,7 +86,7 @@ class EquipmentItem(models.Model):
     currency_id = fields.Many2one('res.currency', string='Currency',
                                   default=lambda self: self.env.company.currency_id)
     vendor_id = fields.Many2one('res.partner', string='Vendor', domain=[('supplier_rank', '>', 0)])
-    purchase_order_id = fields.Many2one('purchase.order', string='Purchase Order')
+    purchase_order_ref = fields.Char(string='PO Reference')
 
     # ------------- Warranty -------------
     warranty_start_date = fields.Date(string='Warranty Start Date')
