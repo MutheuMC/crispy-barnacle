@@ -75,7 +75,27 @@
                         <group>
                             <field name="equipment_id" options="{'no_create': True}" readonly="state != 'draft'"/>
                             <field name="equipment_barcode" readonly="1" widget="badge"/>
-                            <field name="borrower_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+
+                            <field name="borrower_type" readonly="state != 'draft'"/>
+
+                            <field name="borrower_id" string="User"
+                                    options="{'no_create': True}"
+                                    invisible="borrower_type != 'user'"
+                                    readonly="state != 'draft'"/>
+
+                            <field name="borrower_employee_id" string="Employee"
+                                    invisible="borrower_type != 'employee'"
+                                    readonly="state != 'draft'"/>
+
+                            <field name="borrower_department_id" string="Department/Unit"
+                                    invisible="borrower_type != 'department'"
+                                    readonly="state != 'draft'"/>
+
+                            <field name="borrower_partner_id" string="External Borrower"
+                                    invisible="borrower_type != 'external'"
+                                    readonly="state != 'draft'"/>
+
+                            <!-- Readonly contacts derived from chosen borrower -->
                             <field name="borrower_email" readonly="1"/>
                             <field name="borrower_phone" readonly="1"/>
                         </group>

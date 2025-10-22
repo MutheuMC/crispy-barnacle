@@ -143,35 +143,54 @@
     <!-- ========================= -->
     <!--  BORROW WIZARD FORM VIEW  -->
     <!-- ========================= -->
+    <!-- equipment_wizard_views.xml -->
+
     <record id="view_equipment_loan_borrow_wizard_form" model="ir.ui.view">
-        <field name="name">equipment.loan.borrow.wizard.form</field>
-        <field name="model">equipment.borrow.wizard</field>
-        <field name="arch" type="xml">
-            <form string="Borrow Equipment">
-                <group>
-                    <group>
-                        <field name="equipment_id" options="{'no_create': True}"/>
-                        <field name="borrower_id" options="{'no_create': True}"/>
-                    </group>
-                    <group>
-                        <field name="borrow_date"/>
-                        <field name="due_date"/>
-                    </group>
-                </group>
+    <field name="name">equipment.loan.borrow.wizard.form</field>
+    <field name="model">equipment.borrow.wizard</field>
+    <field name="arch" type="xml">
+        <form string="Borrow Equipment">
+        <group>
+            <group>
+            <field name="equipment_id" options="{'no_create': True}"/>
 
-                <separator string="Purpose"/>
-                <field name="purpose" nolabel="1"
-                       placeholder="Describe why you need this equipment and how it will be used..."/>
+            <!-- NEW: Borrower Type + conditional targets -->
+            <field name="borrower_type"/>
 
-                <footer>
-                    <button string="Borrow"
-                            name="action_confirm_borrow"
-                            type="object"
-                            class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
-                </footer>
-            </form>
-        </field>
+            <field name="borrower_id" string="User"
+                    invisible="borrower_type != 'user'"
+                    required="borrower_type == 'user'"
+                    options="{'no_create': True}"/>
+
+            <field name="borrower_employee_id" string="Employee"
+                    invisible="borrower_type != 'employee'"
+                    required="borrower_type == 'employee'"/>
+
+            <field name="borrower_department_id" string="Department/Unit"
+                    invisible="borrower_type != 'department'"
+                    required="borrower_type == 'department'"/>
+
+            <field name="borrower_partner_id" string="External Borrower"
+                    invisible="borrower_type != 'external'"
+                    required="borrower_type == 'external'"/>
+            </group>
+            <group>
+            <field name="borrow_date"/>
+            <field name="due_date"/>
+            </group>
+        </group>
+
+        <separator string="Purpose"/>
+        <field name="purpose" nolabel="1"
+                placeholder="Describe why you need this equipment and how it will be used..."/>
+
+        <footer>
+            <button string="Borrow" name="action_confirm_borrow" type="object" class="btn-primary"/>
+            <button string="Cancel" class="btn-secondary" special="cancel"/>
+        </footer>
+        </form>
+    </field>
     </record>
+
 
 </odoo>

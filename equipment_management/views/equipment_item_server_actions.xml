@@ -1,6 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+ <!-- Assign Equipment -->
+<record id="action_equipment_item_assign" model="ir.actions.server">
+  <field name="name">Assign Equipment</field>
+  <field name="model_id" ref="model_equipment_item"/>
+  <field name="binding_model_id" ref="model_equipment_item"/>
+  <field name="binding_type">action</field>
+  <field name="binding_view_types">list,form</field>
+  <field name="sequence">25</field>
+  <field name="state">code</field>
+  <field name="code"><![CDATA[
+if len(records) != 1:
+    action = {
+        'type': 'ir.actions.client',
+        'tag': 'display_notification',
+        'params': {
+            'title': 'Assign Equipment',
+            'message': 'Please select exactly one equipment item.',
+            'type': 'warning',
+            'sticky': False,
+        },
+    }
+else:
+    action = records.action_open_assign_wizard()
+  ]]></field>
+  <!-- Managers can assign -->
+  <field name="groups_id" eval="[(4, ref('equipment_management.group_equipment_manager'))]"/>
+</record>
+
+<!-- Unassign Equipment -->
+<record id="action_equipment_item_unassign" model="ir.actions.server">
+  <field name="name">Unassign Equipment</field>
+  <field name="model_id" ref="model_equipment_item"/>
+  <field name="binding_model_id" ref="model_equipment_item"/>
+  <field name="binding_type">action</field>
+  <field name="binding_view_types">list,form</field>
+  <field name="sequence">26</field>
+  <field name="state">code</field>
+  <field name="code"><![CDATA[
+if len(records) != 1:
+    action = {
+        'type': 'ir.actions.client',
+        'tag': 'display_notification',
+        'params': {
+            'title': 'Unassign Equipment',
+            'message': 'Please select exactly one equipment item.',
+            'type': 'warning',
+            'sticky': False,
+        },
+    }
+else:
+    action = records.action_open_unassign_wizard()
+  ]]></field>
+  <!-- Managers can unassign -->
+  <field name="groups_id" eval="[(4, ref('equipment_management.group_equipment_manager'))]"/>
+</record>
+
+
   <!-- Borrow (opens borrow wizard) -->
   <record id="action_equipment_item_borrow" model="ir.actions.server">
     <field name="name">Borrow Equipment</field>

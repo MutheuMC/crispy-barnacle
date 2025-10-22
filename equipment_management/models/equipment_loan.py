@@ -33,23 +33,29 @@ class EquipmentLoan(models.Model):
         string='Equipment Barcode',
         readonly=True
     )
-    borrower_id = fields.Many2one(
-        'res.users',
-        string='Borrower',
-        required=True,
-        default=lambda self: self.env.user,
-        tracking=True
-    )
-    borrower_email = fields.Char(
-        related='borrower_id.email',
-        string='Email',
-        readonly=True
-    )
-    borrower_phone = fields.Char(
-        related='borrower_id.phone',
-        string='Phone',
-        readonly=True
-    )
+    # NEW: Borrower Type & Targets  (mirrors the Assign “Holder Type” idea)
+    borrower_type = fields.Selection([
+        ('user', 'Internal User'),
+        ('employee', 'Employee'),
+        ('department', 'Department/Unit'),
+        ('external', 'External Borrower'),
+    ], string='Borrower Type', default='user', required=True, tracking=True)
+
+    # Internal user (existing field kept, no longer required)
+    borrower_id = fields.Many2one('res.users', string='User', tracking=True,
+                                  default=lambda self: self.env.user)
+
+    # Non-user borrowers
+    borrower_employee_id = fields.Many2one('res.partner', string='Employee',
+                                           domain="[('is_company','=',False)]", tracking=True)
+    borrower_department_id = fields.Many2one('res.partner', string='Department/Unit',
+                                             domain="[('is_company','=',True)]", tracking=True)
+    borrower_partner_id = fields.Many2one('res.partner', string='External Borrower', tracking=True)
+
+    # Nice display + contacts (computed from the chosen target)
+    borrower_display = fields.Char(string='Borrower', compute='_compute_borrower_display', store=True)
+    borrower_email = fields.Char(string='Email', compute='_compute_borrower_contacts', store=False, readonly=True)
+    borrower_phone = fields.Char(string='Phone', compute='_compute_borrower_contacts', store=False, readonly=True)
     
     # Dates
     borrow_date = fields.Datetime(
@@ -208,6 +214,32 @@ class EquipmentLoan(models.Model):
          'Due date must be after borrow date!'),
     ]
 
+
+    def _get_borrower_partner(self):
+        """Return the res.partner that represents the borrower (for chatter/notify)."""
+        self.ensure_one()
+        if self.borrower_type == 'user' and self.borrower_id:
+            return self.borrower_id.partner_id
+        if self.borrower_type == 'employee' and self.borrower_employee_id:
+            return self.borrower_employee_id
+        if self.borrower_type == 'department' and self.borrower_department_id:
+            return self.borrower_department_id
+        if self.borrower_type == 'external' and self.borrower_partner_id:
+            return self.borrower_partner_id
+        return self.env['res.partner']
+
+    @api.depends('borrower_type', 'borrower_id', 'borrower_employee_id', 'borrower_department_id', 'borrower_partner_id')
+    def _compute_borrower_display(self):
+        for rec in self:
+            partner = rec._get_borrower_partner()
+            rec.borrower_display = partner.display_name if partner else False
+
+    def _compute_borrower_contacts(self):
+        for rec in self:
+            partner = rec._get_borrower_partner()
+            rec.borrower_email = partner.email or False
+            rec.borrower_phone = partner.phone or partner.mobile or False
+
     @api.model_create_multi
     def create(self, vals_list):
         if isinstance(vals_list, dict):
@@ -260,20 +292,16 @@ class EquipmentLoan(models.Model):
 
     @api.onchange('equipment_id')
     def _onchange_equipment_id(self):
-        """Set defaults based on equipment"""
         if self.equipment_id:
             self.from_location_id = self.equipment_id.location_id
             self.return_location_id = self.equipment_id.location_id
             self.condition_out = self.equipment_id.condition
-            
-            # Set default due date based on category
             if self.equipment_id.category_id.max_borrow_days:
                 days = self.equipment_id.category_id.max_borrow_days
                 self.due_date = fields.Datetime.now() + timedelta(days=days)
 
     @api.onchange('borrow_date')
     def _onchange_borrow_date(self):
-        """Update due date when borrow date changes"""
         if self.borrow_date and self.equipment_id.category_id.max_borrow_days:
             days = self.equipment_id.category_id.max_borrow_days
             self.due_date = self.borrow_date + timedelta(days=days)
@@ -344,8 +372,8 @@ class EquipmentLoan(models.Model):
                 raise UserError(_('Only approved loans can be issued.'))
             loan.equipment_id.write({
                 'state': 'borrowed',
-                'custodian_id': loan.borrower_id.id,
-                'location_id': loan.from_location_id.id,  # keep a valid location
+                'custodian_id': loan.borrower_id.id if loan.borrower_type == 'user' else False,
+                'location_id': loan.from_location_id.id,
             })
             loan.write({
                 'state': 'issued',
@@ -383,46 +411,47 @@ class EquipmentLoan(models.Model):
 
     # Notification Methods
     def _send_approval_notification(self):
-        """Send notification when loan is submitted/approved"""
         for loan in self:
             if loan.state == 'pending':
-                # Notify managers
                 managers = self.env.ref('equipment_management.group_equipment_manager').users
                 loan.message_notify(
                     partner_ids=managers.mapped('partner_id').ids,
                     subject=_('Equipment Loan Approval Required'),
-                    body=_('Loan %s requires your approval.\nEquipment: %s\nBorrower: %s') % (
-                        loan.name, loan.equipment_id.name, loan.borrower_id.name
-                    )
+                    body=_('Loan %s requires your approval.\nEquipment: %s\nBorrower: %s')
+                        % (loan.name, loan.equipment_id.name, loan.borrower_display or '-')
                 )
             elif loan.state == 'approved':
-                # Notify borrower
-                loan.message_notify(
-                    partner_ids=loan.borrower_id.partner_id.ids,
-                    subject=_('Equipment Loan Approved'),
-                    body=_('Your loan request %s has been approved.\nPlease collect the equipment.') % loan.name
-                )
+                partner = loan._get_borrower_partner()
+                if partner:
+                    loan.message_notify(
+                        partner_ids=[partner.id],
+                        subject=_('Equipment Loan Approved'),
+                        body=_('Your loan request %s has been approved.\nPlease collect the equipment.')
+                            % loan.name
+                    )
 
     def _send_issue_notification(self):
-        """Send notification when equipment is issued"""
         for loan in self:
-            loan.message_notify(
-                partner_ids=loan.borrower_id.partner_id.ids,
-                subject=_('Equipment Issued'),
-                body=_('Equipment %s has been issued to you.\nDue date: %s') % (
-                    loan.equipment_id.name,
-                    loan.due_date.strftime('%Y-%m-%d %H:%M')
+            partner = loan._get_borrower_partner()
+            if partner:
+                loan.message_notify(
+                    partner_ids=[partner.id],
+                    subject=_('Equipment Issued'),
+                    body=_('Equipment %s has been issued to you.\nDue date: %s')
+                        % (loan.equipment_id.name, loan.due_date.strftime('%Y-%m-%d %H:%M'))
                 )
-            )
 
     def _send_return_notification(self):
-        """Send notification when equipment is returned"""
         for loan in self:
-            loan.message_notify(
-                partner_ids=loan.borrower_id.partner_id.ids,
-                subject=_('Equipment Returned'),
-                body=_('Equipment %s has been returned successfully.') % loan.equipment_id.name
-            )
+            partner = loan._get_borrower_partner()
+            if partner:
+                loan.message_notify(
+                    partner_ids=[partner.id],
+                    subject=_('Equipment Returned'),
+                    body=_('Equipment %s has been returned successfully.') % loan.equipment_id.name
+                )
+
+    
 
     # Scheduled Actions
     @api.model

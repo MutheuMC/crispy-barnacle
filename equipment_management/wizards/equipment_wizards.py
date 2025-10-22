@@ -172,16 +172,30 @@ class EquipmentLoanRejectWizard(models.TransientModel):
 # -------------------------------------------------------------------
 # QUICK BORROW WIZARD (blocks when assigned)
 # -------------------------------------------------------------------
+
 class EquipmentBorrowWizard(models.TransientModel):
     _name = 'equipment.borrow.wizard'
     _description = 'Quick Equipment Borrow Wizard'
 
     equipment_id = fields.Many2one('equipment.item', string='Equipment', required=True, readonly=True)
-    borrower_id = fields.Many2one('res.users', string='Borrower', required=True,
+
+    borrower_type = fields.Selection([
+        ('user', 'Internal User'),
+        ('employee', 'Employee'),
+        ('department', 'Department/Unit'),
+        ('external', 'External Borrower'),
+    ], string='Borrower Type', default='user', required=True)
+
+    borrower_id = fields.Many2one('res.users', string='User',
                                   default=lambda self: self.env.user)
+    borrower_employee_id = fields.Many2one('res.partner', string='Employee',
+                                           domain="[('is_company','=',False)]")
+    borrower_department_id = fields.Many2one('res.partner', string='Department/Unit',
+                                             domain="[('is_company','=',True)]")
+    borrower_partner_id = fields.Many2one('res.partner', string='External Borrower')
+
     borrow_date = fields.Datetime(string='Borrow Date', required=True, default=fields.Datetime.now)
     due_date = fields.Datetime(string='Due Date', required=True)
-    # placeholder belongs in XML, not here
     purpose = fields.Text(string='Purpose', required=True)
 
     @api.onchange('equipment_id')
@@ -191,11 +205,29 @@ class EquipmentBorrowWizard(models.TransientModel):
             days = self.equipment_id.category_id.max_borrow_days
             self.due_date = fields.Datetime.now() + timedelta(days=days)
 
+    @api.onchange('borrower_type')
+    def _onchange_borrower_type(self):
+        if self.borrower_type == 'user':
+            self.borrower_employee_id = False
+            self.borrower_department_id = False
+            self.borrower_partner_id = False
+        elif self.borrower_type == 'employee':
+            self.borrower_id = False
+            self.borrower_department_id = False
+            self.borrower_partner_id = False
+        elif self.borrower_type == 'department':
+            self.borrower_id = False
+            self.borrower_employee_id = False
+            self.borrower_partner_id = False
+        else:
+            self.borrower_id = False
+            self.borrower_employee_id = False
+            self.borrower_department_id = False
+
     def action_confirm_borrow(self):
         self.ensure_one()
 
         eq = self.equipment_id.sudo()
-        # Block when item is assigned to a holder (cleanest UX)
         if eq.holder_type != 'none':
             raise UserError(_('This item is assigned. Unassign it before borrowing.'))
         if eq.state not in ['available', 'reserved']:
@@ -203,7 +235,7 @@ class EquipmentBorrowWizard(models.TransientModel):
 
         loan_vals = {
             'equipment_id': eq.id,
-            'borrower_id': self.borrower_id.id,
+            'borrower_type': self.borrower_type,
             'borrow_date': self.borrow_date,
             'due_date': self.due_date,
             'purpose': self.purpose,
@@ -211,9 +243,23 @@ class EquipmentBorrowWizard(models.TransientModel):
             'return_location_id': eq.location_id.id,
             'condition_out': eq.condition,
         }
+        if self.borrower_type == 'user':
+            loan_vals['borrower_id'] = (self.borrower_id or self.env.user).id
+        elif self.borrower_type == 'employee':
+            if not self.borrower_employee_id:
+                raise ValidationError(_('Please select the Employee borrower.'))
+            loan_vals['borrower_employee_id'] = self.borrower_employee_id.id
+        elif self.borrower_type == 'department':
+            if not self.borrower_department_id:
+                raise ValidationError(_('Please select the Department borrower.'))
+            loan_vals['borrower_department_id'] = self.borrower_department_id.id
+        else:
+            if not self.borrower_partner_id:
+                raise ValidationError(_('Please select the External borrower.'))
+            loan_vals['borrower_partner_id'] = self.borrower_partner_id.id
+
         loan = self.env['equipment.loan'].create(loan_vals)
 
-        # Auto-approve/issue or go to approval, depending on your loan model
         if not getattr(loan, 'requires_approval', False):
             loan.action_approve()
             loan.action_issue()

@@ -79,5 +79,14 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
+        <record id="equipment_loan_portal_own_rule" model="ir.rule">
+            <field name="name">Loan: Portal see own</field>
+            <field name="model_id" ref="model_equipment_loan"/>
+            <field name="domain_force">[('borrower_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_equipment_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            </record>
+
+
     </data>
 </odoo>
