@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Equipment Loan List View -->
+    <record id="view_equipment_loan_tree" model="ir.ui.view">
+        <field name="name">equipment.loan.list</field>
+        <field name="model">equipment.loan</field>
+        <field name="arch" type="xml">
+            <list string="Equipment Loans"
+                  decoration-danger="state=='overdue'"
+                  decoration-success="state=='returned'"
+                  decoration-info="state=='issued'">
+                <field name="name" string="Loan #"/>
+                <field name="equipment_id"/>
+                <field name="borrower_id"/>
+                <field name="borrow_date"/>
+                <field name="due_date" decoration-danger="is_overdue"/>
+                <field name="return_date"/>
+                <field name="from_location_id"/>
+                <field name="state" widget="badge" decoration-danger="state=='overdue'"/>
+                <field name="is_overdue" invisible="1"/>
+                <field name="days_overdue" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Equipment Loan Form View -->
+    <record id="view_equipment_loan_form" model="ir.ui.view">
+        <field name="name">equipment.loan.form</field>
+        <field name="model">equipment.loan</field>
+        <field name="arch" type="xml">
+            <form string="Equipment Loan">
+                <header>
+                    <button name="action_submit_for_approval" string="Submit for Approval"
+                            type="object" class="oe_highlight"
+                            invisible="not requires_approval or state != 'draft'"/>
+                    <button name="action_approve" string="Approve"
+                            type="object" class="oe_highlight"
+                            invisible="state not in ('draft','pending')"
+                            groups="equipment_management.group_equipment_manager"/>
+                    <button name="action_reject" string="Reject"
+                            type="object"
+                            invisible="state != 'pending'"
+                            groups="equipment_management.group_equipment_manager"/>
+                    <button name="action_issue" string="Issue Equipment"
+                            type="object" class="oe_highlight"
+                            invisible="state != 'approved'"/>
+                    <button name="action_return" string="Return Equipment"
+                            type="object" class="oe_highlight"
+                            invisible="state not in ('issued','overdue')"/>
+                    <button name="action_cancel" string="Cancel"
+                            type="object"
+                            invisible="state not in ('draft','pending','approved')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,pending,approved,issued,returned,cancelled,overdue"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <!-- Launch your JS client action -->
+                        <button name="equipment_management.action_equipment_barcode_scan"
+                                type="action"
+                                class="oe_stat_button"
+                                icon="fa-qrcode"
+                                string="Scan QR"
+                                invisible="state not in ('draft','approved')"/>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="equipment_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                            <field name="equipment_barcode" readonly="1" widget="badge"/>
+                            <field name="borrower_id" options="{'no_create': True}" readonly="state != 'draft'"/>
+                            <field name="borrower_email" readonly="1"/>
+                            <field name="borrower_phone" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="borrow_date" readonly="state not in ('draft','approved')"/>
+                            <field name="due_date" readonly="state not in ('draft','approved','issued')"/>
+                            <field name="return_date" readonly="1"/>
+                            <field name="requires_approval" invisible="1"/>
+                            <field name="is_overdue" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Loan Details" name="details">
+                            <group>
+                                <group>
+                                    <field name="from_location_id" readonly="state != 'draft'"/>
+                                    <field name="return_location_id" readonly="state not in ('draft','approved','issued')"/>
+                                    <field name="actual_return_location_id" invisible="state != 'returned'" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="purpose" placeholder="Describe why you need this equipment..." readonly="state != 'draft'"/>
+                                    <field name="notes" placeholder="Additional notes..."/>
+                                </group>
+                            </group>
+
+                            <group string="Approval">
+                                <group>
+                                    <field name="approver_id" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="approval_date" readonly="1"/>
+                                </group>
+                            </group>
+
+                            <group string="Issue/Return Details">
+                                <group>
+                                    <field name="issued_by_id" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="returned_to_id" readonly="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Condition &amp; Damage" name="damage">
+                            <group>
+                                <group>
+                                    <field name="condition_out"/>
+                                    <field name="condition_return" readonly="state != 'returned'"/>
+                                </group>
+                                <group>
+                                    <field name="damage_notes" placeholder="Describe any damage or issues found..."/>
+                                    <field name="damage_cost"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </group>
+                            </group>
+                            <separator string="Overdue Info" invisible="not is_overdue"/>
+                            <group invisible="not is_overdue">
+                                <field name="days_overdue" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <!-- Chatter -->
+                <chatter>
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </chatter>
+            </form>
+        </field>
+    </record>
+
+    <!-- Equipment Loan Kanban View -->
+    <record id="view_equipment_loan_kanban" model="ir.ui.view">
+        <field name="name">equipment.loan.kanban</field>
+        <field name="model">equipment.loan</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record">
+                                <div class="o_kanban_details">
+                                    <strong><field name="name"/></strong>
+                                    <div><field name="state" widget="badge"/></div>
+                                    <div>
+                                        <span><strong>Equipment:</strong> <field name="equipment_id"/></span><br/>
+                                        <span><strong>Borrower:</strong> <field name="borrower_id"/></span><br/>
+                                        <span><strong>Borrowed:</strong> <field name="borrow_date"/></span>
+                                        <span><strong>Due:</strong> <field name="due_date"/></span>
+                                    </div>
+                                    <div t-if="record.is_overdue.raw_value">
+                                        <span class="text-danger">
+                                            Overdue by <field name="days_overdue"/> day(s)
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_footer">
+                                    <span class="o_kanban_primary_right">
+                                        <button type="object" name="action_return" class="btn btn-sm"
+                                                title="Return"
+                                                t-attf-invisible="#{record.state.raw_value not in ('issued','overdue')}">
+                                            Return
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Equipment Loan Search View (minimal & safe) -->
+    <record id="view_equipment_loan_search" model="ir.ui.view">
+        <field name="name">equipment.loan.search</field>
+        <field name="model">equipment.loan</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="equipment_id"/>
+                <field name="borrower_id"/>
+                <field name="equipment_barcode"/>
+
+                <filter name="my_loans" string="My Loans" domain="[('borrower_id', '=', uid)]"/>
+                <filter name="pending" string="Pending Approval" domain="[('state', '=', 'pending')]"/>
+                <filter name="issued" string="Issued" domain="[('state', '=', 'issued')]"/>
+                <filter name="overdue" string="Overdue" domain="[('state', '=', 'overdue')]"/>
+                <filter name="returned" string="Returned" domain="[('state', '=', 'returned')]"/>
+
+                <group string="Group By">
+                    <filter name="grp_borrower" string="Borrower" context="{'group_by': 'borrower_id'}"/>
+                    <filter name="grp_state" string="State" context="{'group_by': 'state'}"/>
+                    <filter name="grp_borrow_date" string="Borrow Date" context="{'group_by': 'borrow_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions -->
+    <record id="action_my_equipment_loans" model="ir.actions.act_window">
+        <field name="name">My Loans</field>
+        <field name="res_model">equipment.loan</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_my_loans': 1, 'search_default_issued': 1}</field>
+        <field name="domain">[('borrower_id', '=', uid)]</field>
+    </record>
+
+    <record id="action_overdue_loans" model="ir.actions.act_window">
+        <field name="name">Overdue Loans</field>
+        <field name="res_model">equipment.loan</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="context">{'search_default_overdue': 1}</field>
+        <field name="domain">[('state', '=', 'overdue')]</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Paperformat for small barcode labels (40 x 20 mm) -->
+    <record id="equipment_paperformat_barcode_label" model="report.paperformat">
+        <field name="name">Equipment Barcode Label</field>
+        <field name="default" eval="False"/>
+        <field name="format">custom</field>
+        <field name="page_width">40</field>        <!-- mm -->
+        <field name="page_height">20</field>       <!-- mm -->
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">2</field>
+        <field name="margin_bottom">2</field>
+        <field name="margin_left">2</field>
+        <field name="margin_right">2</field>
+        <field name="dpi">203</field>              <!-- typical label printer DPI -->
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>
+        <field name="disable_shrinking" eval="True"/>
+    </record>
+
+    <!-- QWeb report action for Equipment Barcode Label -->
+    <record id="action_report_equipment_barcode_label" model="ir.actions.report">
+        <field name="name">Equipment Barcode Label</field>
+        <field name="model">equipment.item</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">equipment_management.report_equipment_barcode_label</field>
+        <field name="report_file">equipment_management.report_equipment_barcode_label</field>
+        <field name="binding_model_id" ref="model_equipment_item"/>
+        <field name="binding_type">report</field>
+        <field name="print_report_name">'Barcode_Label_%s' % (object.barcode or object.name)</field>
+        <field name="paperformat_id" ref="equipment_paperformat_barcode_label"/>
+    </record>
+
+</odoo>

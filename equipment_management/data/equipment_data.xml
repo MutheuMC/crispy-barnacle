@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Scheduled Action: Check Overdue Loans -->
+        <record id="ir_cron_check_overdue_loans" model="ir.cron">
+            <field name="name">Equipment: Check Overdue Loans</field>
+            <field name="model_id" ref="model_equipment_loan"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_check_overdue_loans()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="priority">5</field>
+        </record>
+
+        <!-- Scheduled Action: Send Due Reminders -->
+        <record id="ir_cron_send_due_reminders" model="ir.cron">
+            <field name="name">Equipment: Send Due Reminders</field>
+            <field name="model_id" ref="model_equipment_loan"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_send_due_reminders()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="priority">5</field>
+        </record>
+
+
+        <record id="location_in_use" model="equipment.location">
+            <field name="name">In Use</field>
+            <field name="code">INUSE</field>
+            <field name="location_type">office</field>
+        </record>
+
+
+    </data>
+</odoo>

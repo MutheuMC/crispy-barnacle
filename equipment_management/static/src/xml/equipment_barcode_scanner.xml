@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="equipment_management.BarcodeScannerTemplate" owl="1">
+        <div class="equipment_barcode_scanner">
+            <!-- Header -->
+            <div class="scanner_header">
+                <h2>Scan Equipment Barcode</h2>
+                <button class="btn btn-secondary" t-on-click="close">
+                    <i class="fa fa-times"/> Close
+                </button>
+            </div>
+
+            <!-- Scanner View -->
+            <div class="scanner_body">
+                <!-- Camera View -->
+                <div class="camera_container">
+                    <video ref="video" class="scanner_video" autoplay="true" playsinline="true"/>
+                    <canvas ref="canvas" style="display: none;"/>
+                    
+                    <!-- Scanning Overlay -->
+                    <div class="scanning_overlay" t-if="state.cameraActive">
+                        <div class="scan_line"/>
+                        <div class="scan_corner scan_corner_tl"/>
+                        <div class="scan_corner scan_corner_tr"/>
+                        <div class="scan_corner scan_corner_bl"/>
+                        <div class="scan_corner scan_corner_br"/>
+                    </div>
+
+                    <!-- Camera Status -->
+                    <div class="camera_status" t-if="!state.cameraActive and !state.error">
+                        <i class="fa fa-camera fa-3x"/>
+                        <p>Starting camera...</p>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div class="camera_error" t-if="state.error">
+                        <i class="fa fa-exclamation-triangle fa-3x"/>
+                        <p t-esc="state.error"/>
+                    </div>
+
+                    <!-- Scanning Indicator -->
+                    <div class="scanning_indicator" t-if="state.scanning">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Processing...</span>
+                        </div>
+                        <p>Processing barcode...</p>
+                    </div>
+                </div>
+
+                <!-- Manual Entry -->
+                <div class="manual_entry">
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        placeholder="Or enter barcode manually and press Enter"
+                        t-on-keypress="(e) => this.onManualEntry(e)"
+                        autofocus="true"
+                    />
+                </div>
+
+                <!-- Equipment Info Card -->
+                <div class="equipment_info_card" t-if="state.equipment">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5>
+                                <i class="fa fa-check-circle"/> Equipment Found
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <h4 t-esc="state.equipment.name"/>
+                            <div class="equipment_details">
+                                <div class="detail_row">
+                                    <strong>Barcode:</strong>
+                                    <span t-esc="state.equipment.barcode"/>
+                                </div>
+                                <div class="detail_row">
+                                    <strong>Category:</strong>
+                                    <span t-esc="state.equipment.category_id[1]"/>
+                                </div>
+                                <div class="detail_row">
+                                    <strong>Location:</strong>
+                                    <span t-esc="state.equipment.location_id[1]"/>
+                                </div>
+                                <div class="detail_row" t-if="state.equipment.custodian_id">
+                                    <strong>Current Custodian:</strong>
+                                    <span t-esc="state.equipment.custodian_id[1]"/>
+                                </div>
+                                <div class="detail_row">
+                                    <strong>Status:</strong>
+                                    <span class="badge" 
+                                          t-attf-class="badge-{{state.equipment.state === 'available' ? 'success' : state.equipment.state === 'borrowed' ? 'info' : 'warning'}}"
+                                          t-esc="state.equipment.state"/>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="action_buttons mt-3">
+                                <button 
+                                    class="btn btn-primary btn-lg btn-block" 
+                                    t-on-click="() => this.openEquipment(state.equipment.id)">
+                                    <i class="fa fa-eye"/> View Details
+                                </button>
+                                
+                                <t t-if="state.equipment.state === 'available' or state.equipment.state === 'reserved'">
+                                    <button 
+                                        class="btn btn-success btn-lg btn-block" 
+                                        t-on-click="quickBorrow">
+                                        <i class="fa fa-hand-o-right"/> Quick Borrow
+                                    </button>
+                                </t>
+                                
+                                <t t-if="state.equipment.state === 'borrowed'">
+                                    <button 
+                                        class="btn btn-warning btn-lg btn-block" 
+                                        t-on-click="quickReturn">
+                                        <i class="fa fa-undo"/> Quick Return
+                                    </button>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="scanner_instructions" t-if="!state.equipment and !state.scanning">
+                    <h5><i class="fa fa-info-circle"/> How to use:</h5>
+                    <ul>
+                        <li>Point your camera at the equipment's QR code or barcode</li>
+                        <li>The system will automatically detect and scan the code</li>
+                        <li>Alternatively, you can type the barcode manually above</li>
+                        <li>Once detected, equipment details will appear below</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

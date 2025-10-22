@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- Borrow (opens borrow wizard) -->
+  <record id="action_equipment_item_borrow" model="ir.actions.server">
+    <field name="name">Borrow Equipment</field>
+    <field name="model_id" ref="model_equipment_item"/>
+    <field name="binding_model_id" ref="model_equipment_item"/>
+    <field name="binding_type">action</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="state">code</field>
+    <field name="code"><![CDATA[
+if len(records) != 1:
+    action = {
+        'type': 'ir.actions.client',
+        'tag': 'display_notification',
+        'params': {
+            'title': 'Borrow Equipment',
+            'message': 'Please select exactly one equipment item.',
+            'type': 'warning',
+            'sticky': False,
+        },
+    }
+else:
+    action = records.action_borrow()
+    ]]></field>
+    <field name="groups_id" eval="[(4, ref('equipment_management.group_equipment_user'))]"/>
+  </record>
+
+  <!-- Return (opens return wizard) -->
+  <record id="action_equipment_item_return" model="ir.actions.server">
+    <field name="name">Return Equipment</field>
+    <field name="model_id" ref="model_equipment_item"/>
+    <field name="binding_model_id" ref="model_equipment_item"/>
+    <field name="binding_type">action</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="state">code</field>
+    <field name="code"><![CDATA[
+if len(records) != 1:
+    action = {
+        'type': 'ir.actions.client',
+        'tag': 'display_notification',
+        'params': {
+            'title': 'Return Equipment',
+            'message': 'Please select exactly one equipment item.',
+            'type': 'warning',
+            'sticky': False,
+        },
+    }
+else:
+    action = records.action_return()
+    ]]></field>
+    <field name="groups_id" eval="[(4, ref('equipment_management.group_equipment_user'))]"/>
+  </record>
+
+  <!-- Schedule Maintenance -->
+  <record id="action_equipment_item_schedule_maintenance" model="ir.actions.server">
+    <field name="name">Schedule Maintenance</field>
+    <field name="model_id" ref="model_equipment_item"/>
+    <field name="binding_model_id" ref="model_equipment_item"/>
+    <field name="binding_type">action</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="state">code</field>
+    <field name="code"><![CDATA[
+if len(records) != 1:
+    action = {
+        'type': 'ir.actions.client',
+        'tag': 'display_notification',
+        'params': {
+            'title': 'Schedule Maintenance',
+            'message': 'Please select exactly one equipment item.',
+            'type': 'warning',
+            'sticky': False,
+        },
+    }
+else:
+    action = records.action_schedule_maintenance()
+    ]]></field>
+    <field name="groups_id" eval="[(4, ref('equipment_management.group_equipment_manager'))]"/>
+  </record>
+
+  <!-- Print Label (supports MULTI selection) -->
+  <record id="action_equipment_item_print_label" model="ir.actions.server">
+    <field name="name">Print Label</field>
+    <field name="model_id" ref="model_equipment_item"/>
+    <field name="binding_model_id" ref="model_equipment_item"/>
+    <field name="binding_type">action</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="state">code</field>
+    <field name="code"><![CDATA[
+# Print labels for all selected items
+action = env.ref('equipment_management.action_report_equipment_barcode_label').report_action(records)
+    ]]></field>
+    <field name="groups_id" eval="[(4, ref('equipment_management.group_equipment_user'))]"/>
+  </record>
+
+  <!-- Mark as Lost -->
+  <record id="action_equipment_item_mark_lost" model="ir.actions.server">
+    <field name="name">Mark as Lost</field>
+    <field name="model_id" ref="model_equipment_item"/>
+    <field name="binding_model_id" ref="model_equipment_item"/>
+    <field name="binding_type">action</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="state">code</field>
+    <field name="code"><![CDATA[
+if len(records) != 1:
+    action = {
+        'type': 'ir.actions.client',
+        'tag': 'display_notification',
+        'params': {
+            'title': 'Mark as Lost',
+            'message': 'Please select exactly one equipment item.',
+            'type': 'warning',
+            'sticky': False,
+        },
+    }
+else:
+    records.mark_as_lost()
+    action = {'type': 'ir.actions.client', 'tag': 'reload'}
+    ]]></field>
+    <field name="groups_id" eval="[(4, ref('equipment_management.group_equipment_manager'))]"/>
+  </record>
+
+  <!-- Mark as Found -->
+  <record id="action_equipment_item_mark_found" model="ir.actions.server">
+    <field name="name">Mark as Found</field>
+    <field name="model_id" ref="model_equipment_item"/>
+    <field name="binding_model_id" ref="model_equipment_item"/>
+    <field name="binding_type">action</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="state">code</field>
+    <field name="code"><![CDATA[
+if len(records) != 1:
+    action = {
+        'type': 'ir.actions.client',
+        'tag': 'display_notification',
+        'params': {
+            'title': 'Mark as Found',
+            'message': 'Please select exactly one equipment item.',
+            'type': 'warning',
+            'sticky': False,
+        },
+    }
+else:
+    records.mark_as_found()
+    action = {'type': 'ir.actions.client', 'tag': 'reload'}
+    ]]></field>
+    <field name="groups_id" eval="[(4, ref('equipment_management.group_equipment_manager'))]"/>
+  </record>
+
+  <!-- Retire -->
+  <record id="action_equipment_item_retire" model="ir.actions.server">
+    <field name="name">Retire</field>
+    <field name="model_id" ref="model_equipment_item"/>
+    <field name="binding_model_id" ref="model_equipment_item"/>
+    <field name="binding_type">action</field>
+    <field name="binding_view_types">list,form</field>
+    <field name="state">code</field>
+    <field name="code"><![CDATA[
+if len(records) != 1:
+    action = {
+        'type': 'ir.actions.client',
+        'tag': 'display_notification',
+        'params': {
+            'title': 'Retire Equipment',
+            'message': 'Please select exactly one equipment item.',
+            'type': 'warning',
+            'sticky': False,
+        },
+    }
+else:
+    records.retire_equipment()
+    action = {'type': 'ir.actions.client', 'tag': 'reload'}
+    ]]></field>
+    <field name="groups_id" eval="[(4, ref('equipment_management.group_equipment_manager'))]"/>
+  </record>
+
+</odoo>

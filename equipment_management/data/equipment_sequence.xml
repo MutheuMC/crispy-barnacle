@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Sequence for Equipment Items -->
+        <record id="sequence_equipment_item" model="ir.sequence">
+            <field name="name">Equipment Item Barcode</field>
+            <field name="code">equipment.item</field>
+            <field name="prefix">EQP</field>
+            <field name="padding">6</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+            <field name="implementation">standard</field>
+        </record>
+
+        <!-- Sequence for Loan Numbers -->
+        <record id="sequence_equipment_loan" model="ir.sequence">
+            <field name="name">Equipment Loan Number</field>
+            <field name="code">equipment.loan</field>
+            <field name="prefix">LOAN</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+            <field name="implementation">standard</field>
+        </record>
+
+        <!-- Sequence for Reservation Numbers -->
+        <record id="sequence_equipment_reservation" model="ir.sequence">
+            <field name="name">Equipment Reservation Number</field>
+            <field name="code">equipment.reservation</field>
+            <field name="prefix">RES</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+            <field name="implementation">standard</field>
+        </record>
+
+        <!-- Sequence for Maintenance Numbers -->
+        <record id="sequence_equipment_maintenance" model="ir.sequence">
+            <field name="name">Equipment Maintenance Number</field>
+            <field name="code">equipment.maintenance</field>
+            <field name="prefix">MAINT</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+            <field name="number_next">1</field>
+            <field name="implementation">standard</field>
+        </record>
+
+    </data>
+</odoo>

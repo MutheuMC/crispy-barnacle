@@ -1,0 +1,340 @@
+/* Equipment Barcode Scanner Styles */
+
+.equipment_barcode_scanner {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.scanner_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #ffffff;
+    border-bottom: 2px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.scanner_header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.scanner_body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Camera Container */
+.camera_container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto 20px;
+    background-color: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.scanner_video {
+    width: 100%;
+    height: auto;
+    display: block;
+    min-height: 300px;
+}
+
+/* Scanning Overlay */
+.scanning_overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 60%;
+    pointer-events: none;
+}
+
+.scan_line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ff00, transparent);
+    animation: scanAnimation 2s infinite;
+}
+
+@keyframes scanAnimation {
+    0%, 100% { top: 0; opacity: 0; }
+    50% { top: 100%; opacity: 1; }
+}
+
+/* Scan Corner Markers */
+.scan_corner {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #00ff00;
+}
+
+.scan_corner_tl {
+    top: 0;
+    left: 0;
+    border-right: none;
+    border-bottom: none;
+}
+
+.scan_corner_tr {
+    top: 0;
+    right: 0;
+    border-left: none;
+    border-bottom: none;
+}
+
+.scan_corner_bl {
+    bottom: 0;
+    left: 0;
+    border-right: none;
+    border-top: none;
+}
+
+.scan_corner_br {
+    bottom: 0;
+    right: 0;
+    border-left: none;
+    border-top: none;
+}
+
+/* Camera Status Messages */
+.camera_status,
+.camera_error {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #ffffff;
+    padding: 20px;
+}
+
+.camera_error {
+    color: #ff4444;
+}
+
+.camera_status i,
+.camera_error i {
+    margin-bottom: 15px;
+}
+
+.camera_status p,
+.camera_error p {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* Scanning Indicator */
+.scanning_indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    color: #ffffff;
+}
+
+.scanning_indicator p {
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+/* Manual Entry */
+.manual_entry {
+    max-width: 800px;
+    margin: 0 auto 20px;
+}
+
+.manual_entry input {
+    font-size: 18px;
+    padding: 12px;
+    text-align: center;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.manual_entry input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Equipment Info Card */
+.equipment_info_card {
+    max-width: 800px;
+    margin: 0 auto;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.equipment_info_card .card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.equipment_info_card .card-header {
+    border-radius: 10px 10px 0 0;
+    padding: 15px 20px;
+}
+
+.equipment_info_card .card-header h5 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.equipment_info_card .card-body h4 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.equipment_details {
+    margin-bottom: 20px;
+}
+
+.detail_row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail_row:last-child {
+    border-bottom: none;
+}
+
+.detail_row strong {
+    color: #666;
+    flex: 0 0 150px;
+}
+
+.detail_row span {
+    flex: 1;
+    text-align: right;
+    color: #333;
+}
+
+.detail_row .badge {
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+/* Action Buttons */
+.action_buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.action_buttons .btn {
+    font-size: 16px;
+    font-weight: 500;
+    padding: 12px;
+}
+
+/* Scanner Instructions */
+.scanner_instructions {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+}
+
+.scanner_instructions h5 {
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.scanner_instructions ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.scanner_instructions li {
+    margin-bottom: 10px;
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .scanner_header {
+        padding: 10px 15px;
+    }
+
+    .scanner_header h2 {
+        font-size: 18px;
+    }
+
+    .scanner_body {
+        padding: 10px;
+    }
+
+    .camera_container {
+        border-radius: 0;
+    }
+
+    .equipment_info_card .card-body h4 {
+        font-size: 20px;
+    }
+
+    .detail_row {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .detail_row strong {
+        flex: none;
+    }
+
+    .detail_row span {
+        text-align: left;
+    }
+}
+
+/* Badge Colors */
+.badge-success {
+    background-color: #28a745;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+}

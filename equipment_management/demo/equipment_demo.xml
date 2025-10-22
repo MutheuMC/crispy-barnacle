@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Demo Categories -->
+        <record id="category_monitors" model="equipment.category">
+            <field name="name">Monitors</field>
+            <field name="code">MON</field>
+            <field name="requires_approval" eval="False"/>
+            <field name="max_borrow_days">14</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="category_plc" model="equipment.category">
+            <field name="name">PLCs and Controllers</field>
+            <field name="code">PLC</field>
+            <field name="requires_approval" eval="True"/>
+            <field name="max_borrow_days">7</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="category_instruments" model="equipment.category">
+            <field name="name">Laboratory Instruments</field>
+            <field name="code">INST</field>
+            <field name="requires_approval" eval="True"/>
+            <field name="max_borrow_days">7</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="category_power" model="equipment.category">
+            <field name="name">Power Equipment</field>
+            <field name="code">PWR</field>
+            <field name="requires_approval" eval="False"/>
+            <field name="max_borrow_days">30</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <!-- Demo Locations -->
+        <record id="location_main_store" model="equipment.location">
+            <field name="name">Main Store</field>
+            <field name="code">STORE</field>
+            <field name="location_type">warehouse</field>
+            <field name="building">Building A</field>
+            <field name="floor">Ground Floor</field>
+            <field name="room">R001</field>
+        </record>
+
+        <record id="location_lab_a" model="equipment.location">
+            <field name="name">Laboratory A</field>
+            <field name="code">LABA</field>
+            <field name="location_type">lab</field>
+            <field name="building">Building B</field>
+            <field name="floor">1st Floor</field>
+            <field name="room">R101</field>
+        </record>
+
+        <record id="location_lab_b" model="equipment.location">
+            <field name="name">Laboratory B</field>
+            <field name="code">LABB</field>
+            <field name="location_type">lab</field>
+            <field name="building">Building B</field>
+            <field name="floor">2nd Floor</field>
+            <field name="room">R201</field>
+        </record>
+
+        <record id="location_workshop" model="equipment.location">
+            <field name="name">Workshop</field>
+            <field name="code">SHOP</field>
+            <field name="location_type">workshop</field>
+            <field name="building">Building C</field>
+            <field name="floor">Ground Floor</field>
+        </record>
+
+        <!-- Demo Equipment Items -->
+        <record id="equipment_monitor_001" model="equipment.item">
+            <field name="name">Dell 24" Monitor</field>
+            <field name="barcode">EQP000001</field>
+            <field name="serial_number">DELL-2024-001</field>
+            <field name="category_id" ref="category_monitors"/>
+            <field name="location_id" ref="location_main_store"/>
+            <field name="state">available</field>
+            <field name="manufacturer">Dell</field>
+            <field name="model">P2422H</field>
+            <field name="condition">good</field>
+            <field name="purchase_date" eval="(DateTime.now() - timedelta(days=365)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="equipment_monitor_002" model="equipment.item">
+            <field name="name">HP 27" Monitor</field>
+            <field name="barcode">EQP000002</field>
+            <field name="serial_number">HP-2024-002</field>
+            <field name="category_id" ref="category_monitors"/>
+            <field name="location_id" ref="location_lab_a"/>
+            <field name="state">available</field>
+            <field name="manufacturer">HP</field>
+            <field name="model">EliteDisplay E273</field>
+            <field name="condition">excellent</field>
+            <field name="purchase_date" eval="(DateTime.now() - timedelta(days=180)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="equipment_oscilloscope_001" model="equipment.item">
+            <field name="name">Digital Oscilloscope</field>
+            <field name="barcode">EQP000003</field>
+            <field name="serial_number">RIGOL-DS1054Z-001</field>
+            <field name="category_id" ref="category_instruments"/>
+            <field name="location_id" ref="location_lab_a"/>
+            <field name="state">available</field>
+            <field name="manufacturer">Rigol</field>
+            <field name="model">DS1054Z</field>
+            <field name="condition">good</field>
+            <field name="specifications">50 MHz bandwidth, 4 channels, 1 GSa/s sample rate</field>
+            <field name="purchase_date" eval="(DateTime.now() - timedelta(days=730)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="equipment_multimeter_001" model="equipment.item">
+            <field name="name">Digital Multimeter</field>
+            <field name="barcode">EQP000004</field>
+            <field name="serial_number">FLUKE-87V-001</field>
+            <field name="category_id" ref="category_instruments"/>
+            <field name="location_id" ref="location_workshop"/>
+            <field name="state">available</field>
+            <field name="manufacturer">Fluke</field>
+            <field name="model">87V</field>
+            <field name="condition">excellent</field>
+            <field name="purchase_date" eval="(DateTime.now() - timedelta(days=90)).strftime('%Y-%m-%d')"/>
+        </record>
+
+        <record id="equipment_power_supply_001" model="equipment.item">
+            <field name="name">DC Power Supply 30V 5A</field>
+            <field name="barcode">EQP000005</field>
+            <field name="serial_number">PS-305D-001</field>
+            <field name="category_id" ref="category_power"/>
+            <field name="location_id" ref="location_lab_b"/>
+            <field name="state">available</field>
+            <field name="manufacturer">Generic</field>
+            <field name="model">PS-305D</field>
+            <field name="condition">good</field>
+            <field name="specifications">0-30V, 0-5A, Digital display</field>
+        </record>
+
+    </data>
+</odoo>

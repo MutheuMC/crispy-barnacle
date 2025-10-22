@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Barcode Label Template -->
+    <template id="report_equipment_barcode_label">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="equipment">
+                <div class="page" style="page-break-after: always;">
+                    <div style="text-align: center; padding: 5mm;">
+                        <!-- Equipment Name -->
+                        <div style="font-size: 12pt; font-weight: bold; margin-bottom: 3mm;">
+                            <t t-esc="equipment.name"/>
+                        </div>
+                        
+                        <!-- QR Code -->
+                        <div style="margin: 3mm 0;">
+                            <t t-if="equipment.qr_code_image">
+                                <img t-att-src="'data:image/png;base64,%s' % equipment.qr_code_image.decode('utf-8')"
+                                     style="width: 40mm; height: 40mm;"/>
+                            </t>
+                            <t t-else="">
+                                <!-- Fallback: Barcode as text -->
+                                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('QR', equipment.barcode, 400, 400)"
+                                     style="width: 40mm; height: 40mm;"/>
+                            </t>
+                        </div>
+                        
+                        <!-- Barcode Number -->
+                        <div style="font-size: 14pt; font-family: monospace; font-weight: bold; margin: 2mm 0;">
+                            <t t-esc="equipment.barcode"/>
+                        </div>
+                        
+                        <!-- Category -->
+                        <div style="font-size: 9pt; color: #666; margin-top: 2mm;">
+                            <t t-esc="equipment.category_id.name"/>
+                        </div>
+                        
+                        <!-- Serial Number (if available) -->
+                        <div t-if="equipment.serial_number" style="font-size: 8pt; color: #999; margin-top: 1mm;">
+                            SN: <t t-esc="equipment.serial_number"/>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Multi-Label Template (6 per page) -->
+    <template id="report_equipment_barcode_label_sheet">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <style>
+                        .label-grid {
+                            display: grid;
+                            grid-template-columns: repeat(2, 1fr);
+                            gap: 10mm;
+                            padding: 5mm;
+                        }
+                        .label-item {
+                            border: 1px solid #ddd;
+                            padding: 5mm;
+                            text-align: center;
+                            break-inside: avoid;
+                            height: 80mm;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                        }
+                        .label-name {
+                            font-size: 11pt;
+                            font-weight: bold;
+                            margin-bottom: 3mm;
+                            height: 15mm;
+                            overflow: hidden;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        .label-qr {
+                            margin: 2mm 0;
+                        }
+                        .label-barcode {
+                            font-size: 12pt;
+                            font-family: monospace;
+                            font-weight: bold;
+                            margin: 2mm 0;
+                        }
+                        .label-category {
+                            font-size: 8pt;
+                            color: #666;
+                            margin-top: 2mm;
+                        }
+                    </style>
+                    
+                    <div class="label-grid">
+                        <t t-foreach="docs" t-as="equipment">
+                            <div class="label-item">
+                                <div class="label-name">
+                                    <span t-esc="equipment.name"/>
+                                </div>
+                                <div class="label-qr">
+                                    <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('QR', equipment.barcode, 300, 300)"
+                                         style="width: 35mm; height: 35mm;"/>
+                                </div>
+                                <div class="label-barcode">
+                                    <t t-esc="equipment.barcode"/>
+                                </div>
+                                <div class="label-category">
+                                    <t t-esc="equipment.category_id.name"/>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

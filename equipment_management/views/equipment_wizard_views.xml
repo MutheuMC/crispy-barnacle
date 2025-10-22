@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================= -->
+    <!--  RETURN WIZARD FORM VIEW  -->
+    <!-- ========================= -->
+    <record id="view_equipment_loan_return_wizard_form" model="ir.ui.view">
+        <field name="name">equipment.loan.return.wizard.form</field>
+        <field name="model">equipment.loan.return.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Return Equipment">
+                <group>
+                    <group>
+                        <field name="loan_id" invisible="1"/>
+                        <field name="equipment_id"/>
+                        <field name="return_date"/>
+                        <field name="return_location_id" options="{'no_create': True}"/>
+                    </group>
+                    <group>
+                        <field name="condition_return" widget="radio"/>
+                        <field name="has_damage"/>
+                    </group>
+                </group>
+
+                <!-- Odoo 18: inline boolean expression -->
+                <group string="Damage Assessment" invisible="not has_damage">
+                    <field name="damage_notes" nolabel="1"
+                           placeholder="Describe the damage in detail..."/>
+                    <field name="damage_cost"/>
+                    <field name="currency_id" invisible="1"/>
+                </group>
+
+                <group>
+                    <field name="create_maintenance" string="Schedule maintenance after return"/>
+                </group>
+
+                <separator string="Additional Notes"/>
+                <field name="notes" nolabel="1"
+                       placeholder="Any additional comments about the return..."/>
+
+                <footer>
+                    <button string="Confirm Return"
+                            name="action_confirm_return"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================= -->
+    <!--  REJECT WIZARD FORM VIEW  -->
+    <!-- ========================= -->
+    <record id="view_equipment_loan_reject_wizard_form" model="ir.ui.view">
+        <field name="name">equipment.loan.reject.wizard.form</field>
+        <field name="model">equipment.loan.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Loan Request">
+                <group>
+                    <field name="loan_id" invisible="1"/>
+                    <field name="rejection_reason" nolabel="1"
+                           placeholder="Please provide a clear reason for rejecting this loan request..."/>
+                </group>
+                <footer>
+                    <button string="Reject"
+                            name="action_confirm_reject"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================= -->
+    <!--  ASSIGN WIZARD FORM VIEW  -->
+    <!-- ========================= -->
+    <record id="view_equipment_assign_wizard_form" model="ir.ui.view">
+        <field name="name">equipment.assign.wizard.form</field>
+        <field name="model">equipment.assign.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Assign Equipment">
+                <group>
+                    <group>
+                        <field name="equipment_id" readonly="1"/>
+                        <field name="holder_type"/>
+
+                        <!-- Odoo 18 inline conditions -->
+                        <field name="employee_id"
+                               invisible="holder_type != 'employee'"
+                               required="holder_type == 'employee'"/>
+
+                        <field name="department_id" string="Department/Unit"
+                               invisible="holder_type != 'department'"
+                               required="holder_type == 'department'"/>
+
+                        <field name="custodian_partner_id" string="External Custodian"
+                               invisible="holder_type != 'other'"
+                               required="holder_type == 'other'"/>
+
+                        <field name="assigned_date" required="1"/>
+                    </group>
+                </group>
+
+                <group>
+                    <field name="notes" nolabel="1" placeholder="Optional notes about this assignment…"/>
+                </group>
+
+                <footer>
+                    <button string="Assign" name="action_confirm_assign" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- =========================== -->
+    <!--  UNASSIGN WIZARD FORM VIEW  -->
+    <!-- (single, canonical version) -->
+    <!-- =========================== -->
+    <record id="view_equipment_unassign_wizard_form" model="ir.ui.view">
+        <field name="name">equipment.unassign.wizard.form</field>
+        <field name="model">equipment.unassign.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Unassign Equipment">
+                <group>
+                    <field name="equipment_id" readonly="1"/>
+                    <field name="unassigned_date"/>
+                </group>
+                <group>
+                    <field name="notes" nolabel="1"
+                           placeholder="Optional notes (e.g., reason for unassignment, condition notes, etc.)…"/>
+                </group>
+                <footer>
+                    <button string="Unassign" name="action_confirm_unassign" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========================= -->
+    <!--  BORROW WIZARD FORM VIEW  -->
+    <!-- ========================= -->
+    <record id="view_equipment_loan_borrow_wizard_form" model="ir.ui.view">
+        <field name="name">equipment.loan.borrow.wizard.form</field>
+        <field name="model">equipment.borrow.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Borrow Equipment">
+                <group>
+                    <group>
+                        <field name="equipment_id" options="{'no_create': True}"/>
+                        <field name="borrower_id" options="{'no_create': True}"/>
+                    </group>
+                    <group>
+                        <field name="borrow_date"/>
+                        <field name="due_date"/>
+                    </group>
+                </group>
+
+                <separator string="Purpose"/>
+                <field name="purpose" nolabel="1"
+                       placeholder="Describe why you need this equipment and how it will be used..."/>
+
+                <footer>
+                    <button string="Borrow"
+                            name="action_confirm_borrow"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

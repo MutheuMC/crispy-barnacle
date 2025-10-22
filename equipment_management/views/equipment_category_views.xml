@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Category list View -->
+    <record id="view_equipment_category_list" model="ir.ui.view">
+        <field name="name">equipment.category.list</field>
+        <field name="model">equipment.category</field>
+        <field name="arch" type="xml">
+            <list string="Equipment Categories">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="parent_id"/>
+                <field name="requires_approval" widget="boolean_toggle"/>
+                <field name="max_borrow_days"/>
+                <field name="equipment_count"/>
+                <field name="responsible_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Category Form View -->
+    <record id="view_equipment_category_form" model="ir.ui.view">
+        <field name="name">equipment.category.form</field>
+        <field name="model">equipment.category</field>
+        <field name="arch" type="xml">
+            <form string="Equipment Category">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_equipment" type="object" 
+                                class="oe_stat_button" icon="fa-cube">
+                            <field name="equipment_count" widget="statinfo" string="Equipment"/>
+                        </button>
+                    </div>
+                    
+                    <field name="image" widget="image" class="oe_avatar"/>
+                    
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g., Laboratory Instruments"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="parent_id"/>
+                            <field name="sequence"/>
+                            <field name="responsible_id"/>
+                        </group>
+                        <group string="Borrowing Rules">
+                            <field name="requires_approval"/>
+                            <field name="max_borrow_days"/>
+                            <field name="allow_external_borrowing"/>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Description" name="description">
+                            <field name="description" placeholder="Category description..."/>
+                        </page>
+                        <page string="Subcategories" name="subcategories">
+                            <field name="child_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="equipment_count"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>
